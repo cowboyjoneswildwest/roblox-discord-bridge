@@ -274,37 +274,32 @@ app.listen(PORT, () => {
 console.log("[Discord] Attempting to login...");
 
 if (!DISCORD_TOKEN) {
-  console.error("═══════════════════════════════════════════════════════");
   console.error("[Discord] ❌ DISCORD_TOKEN is not set!");
-  console.error("[Discord] Add it to your Render environment variables");
-  console.error("═══════════════════════════════════════════════════════");
 } else {
+  // Set a timeout to detect silent failures
+  const loginTimeout = setTimeout(() => {
+    console.error("═══════════════════════════════════════════════════════");
+    console.error("[Discord] ❌ Login timed out after 30 seconds");
+    console.error("[Discord] This usually means the token is invalid");
+    console.error("[Discord] Token length:", DISCORD_TOKEN.length);
+    console.error("[Discord] Token starts with:", DISCORD_TOKEN.substring(0, 10));
+    console.error("[Discord] Token ends with:", DISCORD_TOKEN.substring(DISCORD_TOKEN.length - 10));
+    console.error("═══════════════════════════════════════════════════════");
+  }, 30000);
+
   client.login(DISCORD_TOKEN)
     .then(() => {
+      clearTimeout(loginTimeout);
       console.log("[Discord] ✅ Login promise resolved");
     })
     .catch((err) => {
+      clearTimeout(loginTimeout);
       console.error("═══════════════════════════════════════════════════════");
       console.error("[Discord] ❌ LOGIN FAILED");
-      console.error("[Discord] Error name:", err.name);
-      console.error("[Discord] Error message:", err.message);
-      console.error("[Discord] Error code:", err.code);
+      console.error("[Discord] Error:", err.message);
       console.error("═══════════════════════════════════════════════════════");
-      
-      if (err.message.includes("invalid token")) {
-        console.error("[Discord] 👉 Your token is invalid. Get a new one from:");
-        console.error("[Discord]    https://discord.com/developers/applications");
-        console.error("[Discord]    → Your App → Bot → Reset Token");
-      }
-      
-      if (err.message.includes("disallowed intents")) {
-        console.error("[Discord] 👉 Enable intents in Discord Developer Portal:");
-        console.error("[Discord]    → Your App → Bot → Privileged Gateway Intents");
-        console.error("[Discord]    → Enable: Message Content Intent");
-      }
     });
 }
-
 // ─── Error Handlers ───────────────────────────────────────────────────────────
 process.on("unhandledRejection", (err) => {
   console.error("[UNHANDLED REJECTION]", err);
