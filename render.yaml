@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: roblox-discord-bridge
+    runtime: node
+    buildCommand: cd bot && npm install
+    startCommand: cd bot && npm start
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_CHANNEL_ID
+        sync: false
+      - key: BRIDGE_SECRET
+        sync: false
+      - key: PORT
+        value: 3000
